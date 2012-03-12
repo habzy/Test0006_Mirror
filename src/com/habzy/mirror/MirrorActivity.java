@@ -25,6 +25,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
@@ -32,17 +33,17 @@ import android.widget.RelativeLayout.LayoutParams;
 public class MirrorActivity extends Activity
 {
     
-    private static final int DEFAULT_LEFT = 0;
-    
-    private static final int DEFAUT_TOP = 150;
-    
     private static final String TAG = "MirrorActivity";
+    
+    private static final int DEFAULT_LEFT = 100;
+    
+    private static final int DEFAUT_TOP = 200;
     
     private RelativeLayout mPreviewLayout;
     
     private LayoutParams layoutParams;
     
-    private RelativeLayout mParentPreviewLayout;
+    private RelativeLayout mPreviewParent;
     
     private SensorManager mSensorMgr;
     
@@ -54,7 +55,11 @@ public class MirrorActivity extends Activity
     
     private float mLightIntensity;
     
-    protected final SensorEventListener mSensorEventListener = new SensorEventListener()
+    private boolean mIsAutoBrightness = false;
+    
+    private int mDefaultBrightness;
+    
+    private final SensorEventListener mSensorEventListener = new SensorEventListener()
     {
         
         @Override
@@ -70,8 +75,9 @@ public class MirrorActivity extends Activity
             if (mLightIntensity != event.values[0])
             {
                 mLightIntensity = event.values[0];
-                
                 Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
+                
+                changeScreenProperty();
             }
         }
         
@@ -84,10 +90,14 @@ public class MirrorActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        mParentPreviewLayout = (RelativeLayout) findViewById(R.id.preview_parent);
+        mPreviewParent = (RelativeLayout) findViewById(R.id.preview_parent);
         addPreviewFromXml();
         
         mHasLightSensors = getLightSensors();
+        
+        Display display = getWindowManager().getDefaultDisplay();
+        Log.d(TAG, "height:" + display.getHeight());
+        Log.d(TAG, "width:" + display.getWidth());
     }
     
     /**
@@ -106,6 +116,15 @@ public class MirrorActivity extends Activity
     @Override
     protected void onResume()
     {
+        mIsAutoBrightness = ScreenBrightAutoControler.isAutoBrightness(this);
+        if (mIsAutoBrightness)
+        {
+            ScreenBrightAutoControler.stopAutoBrightness(this);
+        }
+        else
+        {
+            mDefaultBrightness = ScreenBrightAutoControler.getScreenBrightness(this);
+        }
         if (mHasLightSensors && !mHasRegesteredSensor)
         {
             mHasRegesteredSensor = mSensorMgr.registerListener(mSensorEventListener,
@@ -123,6 +142,14 @@ public class MirrorActivity extends Activity
             mSensorMgr.unregisterListener(mSensorEventListener);
             mHasRegesteredSensor = false;
         }
+        if (mIsAutoBrightness)
+        {
+            ScreenBrightAutoControler.startAutoBrightness(this);
+        }
+        else
+        {
+            ScreenBrightAutoControler.setBrightness(this, mDefaultBrightness);
+        }
         super.onPause();
     }
     
@@ -135,16 +162,22 @@ public class MirrorActivity extends Activity
         layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT);
         layoutParams.leftMargin = DEFAULT_LEFT;
-        layoutParams.rightMargin = DEFAULT_LEFT;
+        layoutParams.rightMargin = DEFAULT_LEFT / 2;
         layoutParams.topMargin = DEFAUT_TOP;
         layoutParams.bottomMargin = DEFAUT_TOP;
         
-        mParentPreviewLayout.addView(mPreviewLayout, layoutParams);
+        mPreviewParent.addView(mPreviewLayout, layoutParams);
+    }
+    
+    private void changeScreenProperty()
+    {
+        // TODO Auto-generated method stub
+        
     }
     
     public void updateWindowSize()
     {
-        mParentPreviewLayout.updateViewLayout(mPreviewLayout, layoutParams);
+        mPreviewParent.updateViewLayout(mPreviewLayout, layoutParams);
     }
     
 }
