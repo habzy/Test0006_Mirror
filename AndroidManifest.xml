@@ -4,7 +4,7 @@
 	<uses-sdk android:minSdkVersion="8" />
 
 	<application android:icon="@drawable/mirror" android:label="@string/app_name">
-		<activity android:name=".MirrorActivity" android:theme="@android:style/Theme.NoTitleBar"
+		<activity android:name=".MirrorActivity" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
 			android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
