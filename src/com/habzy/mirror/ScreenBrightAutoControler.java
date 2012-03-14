@@ -102,6 +102,7 @@ public class ScreenBrightAutoControler
         {
             e.printStackTrace();
         }
+        
         Log.d(TAG, "The screen brightness is ?=" + nowBrightnessValue);
         return nowBrightnessValue;
     }

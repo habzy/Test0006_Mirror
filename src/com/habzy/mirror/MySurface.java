@@ -31,7 +31,7 @@ public class MySurface extends SurfaceView
     
     protected static final String TAG = "MySurface";
     
-    Camera mCamera;
+    private Camera mCamera;
     
     private SurfaceHolder holder;
     
@@ -41,7 +41,16 @@ public class MySurface extends SurfaceView
         holder = getHolder();
         holder.addCallback(mCallback);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        
+    }
+    
+    /**
+     * Need to call this method before initialize the view.
+     * 
+     * @param camera
+     */
+    public void setCamera(Camera camera)
+    {
+        mCamera = camera;
     }
     
     @Override
@@ -70,26 +79,25 @@ public class MySurface extends SurfaceView
                         defaultCameraId = i;
                     }
                 }
-                
                 mCamera = Camera.open(defaultCameraId);
-                try
-                {
-                    mCamera.setPreviewDisplay(holder);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-                
-                try
-                {
-                    mCamera.setDisplayOrientation(90);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                
+            }
+            
+            try
+            {
+                mCamera.setPreviewDisplay(holder);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            
+            try
+            {
+                mCamera.setDisplayOrientation(90);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
         

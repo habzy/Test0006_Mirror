@@ -19,10 +19,13 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -35,16 +38,29 @@ public class MirrorActivity extends Activity
     
     private static final String TAG = "MirrorActivity";
     
-    private static final int DEFAULT_LEFT = 100;
+    private int mDefaulLeft;
     
-    private static final int DEFAUT_TOP = 200;
+    private int mDefaulTop = 100;
+    
+    private int mDisPlayWidth;
+    
+    private int mDisPlayHeight;
+    
+    private Camera mCamera;
+    
+    private Size mCameraSize;
     
     private RelativeLayout mPreviewLayout;
+    
+    private MySurface mSurface;
     
     private LayoutParams layoutParams;
     
     private RelativeLayout mPreviewParent;
     
+    /**
+     * Sensor ...
+     */
     private SensorManager mSensorMgr;
     
     private List<Sensor> mLightSensors;
@@ -63,7 +79,7 @@ public class MirrorActivity extends Activity
     {
         
         @Override
-        public void onAccuracyChanged(Sensor arg0, int arg1)
+        public void onAccuracyChanged(Sensor sensor, int arg1)
         {
             // TODO Auto-generated method stub
             
@@ -77,7 +93,8 @@ public class MirrorActivity extends Activity
                 mLightIntensity = event.values[0];
                 Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
                 
-                changeScreenProperty();
+                changePreviewProperty();
+                mPreviewParent.updateViewLayout(mPreviewLayout, layoutParams);
             }
         }
         
@@ -89,15 +106,68 @@ public class MirrorActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        sizeInit();
+        cameraInit();
+        calculatePreviewSize();
         
         mPreviewParent = (RelativeLayout) findViewById(R.id.preview_parent);
         addPreviewFromXml();
         
         mHasLightSensors = getLightSensors();
-        
+    }
+    
+    private void sizeInit()
+    {
         Display display = getWindowManager().getDefaultDisplay();
-        Log.d(TAG, "height:" + display.getHeight());
-        Log.d(TAG, "width:" + display.getWidth());
+        mDisPlayWidth = display.getWidth();
+        mDisPlayHeight = display.getHeight();
+        Log.d(TAG, "height:" + mDisPlayHeight + ";width:" + mDisPlayWidth);
+    }
+    
+    private void cameraInit()
+    {
+        List<Size> supportedSizes = null;
+        if (mCamera == null)
+        {
+            int defaultCameraId = 1;
+            int numberOfCameras = Camera.getNumberOfCameras();
+            CameraInfo cameraInfo = new CameraInfo();
+            for (int i = 0; i < numberOfCameras; i++)
+            {
+                Camera.getCameraInfo(i, cameraInfo);
+                if (cameraInfo.facing == CameraInfo.CAMERA_FACING_FRONT)
+                {
+                    defaultCameraId = i;
+                }
+            }
+            
+            mCamera = Camera.open(defaultCameraId);
+            
+            supportedSizes = mCamera.getParameters().getSupportedPreviewSizes();
+        }
+        if (null != supportedSizes)
+        {
+            mCameraSize = supportedSizes.get(supportedSizes.size() - 1);
+            Log.d(TAG, "Camera Sizes:" + mCameraSize);
+        }
+        
+    }
+    
+    private void calculatePreviewSize()
+    {
+        float screenScale = mDisPlayWidth / mDisPlayHeight;
+        float cameraScale = mCameraSize.width / mCameraSize.height;
+        if (screenScale <= cameraScale)
+        {
+            mDefaulLeft = 0;
+            mDefaulTop = (int) (mDisPlayHeight - mDisPlayWidth / cameraScale) / 2;
+        }
+        else
+        {
+            mDefaulTop = 0;
+            mDefaulLeft = (int) (mDisPlayWidth - mDisPlayHeight * cameraScale) / 2;
+        }
+        
     }
     
     /**
@@ -125,6 +195,7 @@ public class MirrorActivity extends Activity
         {
             mDefaultBrightness = ScreenBrightAutoControler.getScreenBrightness(this);
         }
+        ScreenBrightAutoControler.setBrightness(this, 255);
         if (mHasLightSensors && !mHasRegesteredSensor)
         {
             mHasRegesteredSensor = mSensorMgr.registerListener(mSensorEventListener,
@@ -158,26 +229,47 @@ public class MirrorActivity extends Activity
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mPreviewLayout = (RelativeLayout) inflater.inflate(R.layout.preview_layout,
                 null);
+        mSurface = (MySurface) mPreviewLayout.findViewById(R.id.Surface);
+        mSurface.setCamera(mCamera);
         
         layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT);
-        layoutParams.leftMargin = DEFAULT_LEFT;
-        layoutParams.rightMargin = DEFAULT_LEFT / 2;
-        layoutParams.topMargin = DEFAUT_TOP;
-        layoutParams.bottomMargin = DEFAUT_TOP;
+        layoutParams.leftMargin = mDefaulLeft;
+        layoutParams.rightMargin = mDefaulLeft / 2;
+        layoutParams.topMargin = mDefaulTop;
+        layoutParams.bottomMargin = mDefaulTop;
         
         mPreviewParent.addView(mPreviewLayout, layoutParams);
     }
     
-    private void changeScreenProperty()
+    private void changePreviewProperty()
     {
-        // TODO Auto-generated method stub
+        if (mLightIntensity < 100)
+        {
+            layoutParams.leftMargin = mDefaulLeft
+                    + (mDisPlayWidth - 2 * mDefaulLeft) / 4;
+            layoutParams.rightMargin = layoutParams.leftMargin / 2;
+            layoutParams.topMargin = mDefaulTop
+                    + (mDisPlayHeight - 2 * mDefaulTop) / 4;
+            layoutParams.bottomMargin = layoutParams.topMargin;
+        }
+        else if (mLightIntensity < 800)
+        {
+            layoutParams.leftMargin = mDefaulLeft
+                    + (mDisPlayWidth - 2 * mDefaulLeft) / 8;
+            layoutParams.rightMargin = layoutParams.leftMargin / 2;
+            layoutParams.topMargin = mDefaulTop
+                    + (mDisPlayHeight - 2 * mDefaulTop) / 8;
+            layoutParams.bottomMargin = layoutParams.topMargin;
+        }
+        else
+        {
+            layoutParams.leftMargin = mDefaulLeft;
+            layoutParams.rightMargin = mDefaulLeft / 2;
+            layoutParams.topMargin = mDefaulTop;
+            layoutParams.bottomMargin = mDefaulTop;
+        }
         
-    }
-    
-    public void updateWindowSize()
-    {
-        mPreviewParent.updateViewLayout(mPreviewLayout, layoutParams);
     }
     
 }
