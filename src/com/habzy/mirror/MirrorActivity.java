@@ -116,6 +116,28 @@ public class MirrorActivity extends Activity
         mHasLightSensors = getLightSensors();
     }
     
+    @Override
+    protected void onResume()
+    {
+        mIsAutoBrightness = ScreenBrightAutoControler.isAutoBrightness(this);
+        if (mIsAutoBrightness)
+        {
+            ScreenBrightAutoControler.stopAutoBrightness(this);
+        }
+        else
+        {
+            mDefaultBrightness = ScreenBrightAutoControler.getScreenBrightness(this);
+        }
+        ScreenBrightAutoControler.setBrightness(this, 255);
+        if (mHasLightSensors && !mHasRegesteredSensor)
+        {
+            mHasRegesteredSensor = mSensorMgr.registerListener(mSensorEventListener,
+                    mLightSensors.get(0),
+                    SensorManager.SENSOR_DELAY_FASTEST);
+        }
+        super.onResume();
+    }
+    
     private void sizeInit()
     {
         Display display = getWindowManager().getDefaultDisplay();
@@ -147,8 +169,9 @@ public class MirrorActivity extends Activity
         }
         if (null != supportedSizes)
         {
-            mCameraSize = supportedSizes.get(supportedSizes.size() - 1);
-            Log.d(TAG, "Camera Sizes:" + mCameraSize);
+            mCameraSize = supportedSizes.get(0);
+            Log.d(TAG, "Camera Sizes:" + mCameraSize.width + " & "
+                    + mCameraSize.height);
         }
         
     }
@@ -159,15 +182,16 @@ public class MirrorActivity extends Activity
         float cameraScale = mCameraSize.width / mCameraSize.height;
         if (screenScale <= cameraScale)
         {
+            mDefaulTop = (int) (mDisPlayHeight - (mDisPlayWidth / cameraScale)) / 4;
             mDefaulLeft = 0;
-            mDefaulTop = (int) (mDisPlayHeight - mDisPlayWidth / cameraScale) / 2;
         }
         else
         {
             mDefaulTop = 0;
-            mDefaulLeft = (int) (mDisPlayWidth - mDisPlayHeight * cameraScale) / 2;
+            mDefaulLeft = (int) (mDisPlayWidth - (mDisPlayHeight * cameraScale)) / 2;
         }
         
+        Log.d(TAG, "Calculate top and left:" + mDefaulTop + " & " + mDefaulLeft);
     }
     
     /**
@@ -179,30 +203,7 @@ public class MirrorActivity extends Activity
         mLightSensors = mSensorMgr.getSensorList(Sensor.TYPE_LIGHT);
         boolean hasSensors = !mLightSensors.isEmpty();
         Log.d(TAG, "This device has light sensors?=" + hasSensors);
-        
         return hasSensors;
-    }
-    
-    @Override
-    protected void onResume()
-    {
-        mIsAutoBrightness = ScreenBrightAutoControler.isAutoBrightness(this);
-        if (mIsAutoBrightness)
-        {
-            ScreenBrightAutoControler.stopAutoBrightness(this);
-        }
-        else
-        {
-            mDefaultBrightness = ScreenBrightAutoControler.getScreenBrightness(this);
-        }
-        ScreenBrightAutoControler.setBrightness(this, 255);
-        if (mHasLightSensors && !mHasRegesteredSensor)
-        {
-            mHasRegesteredSensor = mSensorMgr.registerListener(mSensorEventListener,
-                    mLightSensors.get(0),
-                    SensorManager.SENSOR_DELAY_FASTEST);
-        }
-        super.onResume();
     }
     
     @Override
