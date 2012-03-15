@@ -50,13 +50,13 @@ public class MirrorActivity extends Activity
     
     private Size mCameraSize;
     
+    private RelativeLayout mPreviewParent;
+    
     private RelativeLayout mPreviewLayout;
     
     private MySurface mSurface;
     
     private LayoutParams layoutParams;
-    
-    private RelativeLayout mPreviewParent;
     
     /**
      * Sensor ...
@@ -111,6 +111,7 @@ public class MirrorActivity extends Activity
         calculatePreviewSize();
         
         mPreviewParent = (RelativeLayout) findViewById(R.id.preview_parent);
+        mPreviewParent.setKeepScreenOn(true);
         addPreviewFromXml();
         
         mHasLightSensors = getLightSensors();
@@ -120,11 +121,11 @@ public class MirrorActivity extends Activity
     protected void onResume()
     {
         mIsAutoBrightness = ScreenBrightAutoControler.isAutoBrightness(this);
-        if (mIsAutoBrightness)
-        {
-            ScreenBrightAutoControler.stopAutoBrightness(this);
-        }
-        else
+        if (!mIsAutoBrightness)
+        // {
+        // ScreenBrightAutoControler.stopAutoBrightness(this);
+        // }
+        // else
         {
             mDefaultBrightness = ScreenBrightAutoControler.getScreenBrightness(this);
         }
@@ -136,6 +137,13 @@ public class MirrorActivity extends Activity
                     SensorManager.SENSOR_DELAY_FASTEST);
         }
         super.onResume();
+    }
+    
+    @Override
+    protected void onDestroy()
+    {
+        mCamera = null;
+        super.onDestroy();
     }
     
     private void sizeInit()
@@ -214,11 +222,11 @@ public class MirrorActivity extends Activity
             mSensorMgr.unregisterListener(mSensorEventListener);
             mHasRegesteredSensor = false;
         }
-        if (mIsAutoBrightness)
-        {
-            ScreenBrightAutoControler.startAutoBrightness(this);
-        }
-        else
+        if (!mIsAutoBrightness)
+        // {
+        // ScreenBrightAutoControler.startAutoBrightness(this);
+        // }
+        // else
         {
             ScreenBrightAutoControler.setBrightness(this, mDefaultBrightness);
         }
