@@ -20,6 +20,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -30,21 +31,24 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
-public class MirrorActivity extends Activity
+public class MirrorActivity extends Activity implements OnClickListener
 {
     
     private static final String TAG = "MirrorActivity";
     
-    private int mDefaulLeft;
-    
-    private int mDefaulTop = 100;
-    
     private int mDisPlayWidth;
     
     private int mDisPlayHeight;
+    
+    private int mDefaulLeft;
+    
+    private int mDefaulTop = 100;
     
     private Camera mCamera;
     
@@ -75,13 +79,25 @@ public class MirrorActivity extends Activity
     
     private int mDefaultBrightness;
     
+    /**
+     * Buttons
+     */
+    
+    private Button mMirrorBt;
+    
+    private Button mLightBt;
+    
+    private boolean mIsMirrorOn = false;
+    
+    private boolean mIsLightOn = false;
+    
     private final SensorEventListener mSensorEventListener = new SensorEventListener()
     {
         
         @Override
         public void onAccuracyChanged(Sensor sensor, int arg1)
         {
-            // TODO Auto-generated method stub
+            // Do nothing.
             
         }
         
@@ -92,9 +108,12 @@ public class MirrorActivity extends Activity
             {
                 mLightIntensity = event.values[0];
                 Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
-                
-                changePreviewProperty();
-                mPreviewParent.updateViewLayout(mPreviewLayout, layoutParams);
+                if (mIsMirrorOn)
+                {
+                    changePreviewProperty();
+                    mPreviewParent.updateViewLayout(mPreviewLayout,
+                            layoutParams);
+                }
             }
         }
         
@@ -115,6 +134,47 @@ public class MirrorActivity extends Activity
         addPreviewFromXml();
         
         mHasLightSensors = getLightSensors();
+        
+        initButtom();
+    }
+    
+    @Override
+    public void onClick(View view)
+    {
+        switch (view.getId())
+        {
+            case R.id.mirror:
+            {
+                if (mIsMirrorOn)
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+                mIsMirrorOn = !mIsMirrorOn;
+                break;
+            }
+            case R.id.light:
+            {
+                Log.d(TAG, "Light:" + !mIsLightOn);
+                Parameters parameters = mCamera.getParameters();
+                if (!mIsLightOn)
+                {
+                    // parameters.setFlashMode(Parameters.FLASH_MODE_ON);
+                    parameters.setFlashMode(Parameters.FLASH_MODE_TORCH);
+                }
+                else
+                {
+                    parameters.setFlashMode(Parameters.FLASH_MODE_OFF);
+                }
+                mCamera.setParameters(parameters);
+                mIsLightOn = !mIsLightOn;
+                break;
+            }
+        }
+        
     }
     
     @Override
@@ -122,14 +182,11 @@ public class MirrorActivity extends Activity
     {
         mIsAutoBrightness = ScreenBrightAutoControler.isAutoBrightness(this);
         if (!mIsAutoBrightness)
-        // {
-        // ScreenBrightAutoControler.stopAutoBrightness(this);
-        // }
-        // else
         {
             mDefaultBrightness = ScreenBrightAutoControler.getScreenBrightness(this);
         }
         ScreenBrightAutoControler.setBrightness(this, 255);
+        
         if (mHasLightSensors && !mHasRegesteredSensor)
         {
             mHasRegesteredSensor = mSensorMgr.registerListener(mSensorEventListener,
@@ -137,6 +194,22 @@ public class MirrorActivity extends Activity
                     SensorManager.SENSOR_DELAY_FASTEST);
         }
         super.onResume();
+    }
+    
+    @Override
+    protected void onPause()
+    {
+        if (mHasRegesteredSensor)
+        {
+            mSensorMgr.unregisterListener(mSensorEventListener);
+            mHasRegesteredSensor = false;
+        }
+        
+        if (!mIsAutoBrightness)
+        {
+            ScreenBrightAutoControler.setBrightness(this, mDefaultBrightness);
+        }
+        super.onPause();
     }
     
     @Override
@@ -172,6 +245,7 @@ public class MirrorActivity extends Activity
             }
             
             mCamera = Camera.open(defaultCameraId);
+            // mCamera = Camera.open();
             
             supportedSizes = mCamera.getParameters().getSupportedPreviewSizes();
         }
@@ -214,25 +288,6 @@ public class MirrorActivity extends Activity
         return hasSensors;
     }
     
-    @Override
-    protected void onPause()
-    {
-        if (mHasRegesteredSensor)
-        {
-            mSensorMgr.unregisterListener(mSensorEventListener);
-            mHasRegesteredSensor = false;
-        }
-        if (!mIsAutoBrightness)
-        // {
-        // ScreenBrightAutoControler.startAutoBrightness(this);
-        // }
-        // else
-        {
-            ScreenBrightAutoControler.setBrightness(this, mDefaultBrightness);
-        }
-        super.onPause();
-    }
-    
     private void addPreviewFromXml()
     {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -249,6 +304,19 @@ public class MirrorActivity extends Activity
         layoutParams.bottomMargin = mDefaulTop;
         
         mPreviewParent.addView(mPreviewLayout, layoutParams);
+        
+        // mPreviewLayout.setVisibility(View.INVISIBLE);
+        // mPreviewParent.setBackgroundColor(Color.BLACK);
+    }
+    
+    private void initButtom()
+    {
+        mMirrorBt = (Button) findViewById(R.id.mirror);
+        mLightBt = (Button) findViewById(R.id.light);
+        
+        mMirrorBt.setOnClickListener(this);
+        mLightBt.setOnClickListener(this);
+        
     }
     
     private void changePreviewProperty()
