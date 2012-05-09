@@ -5,6 +5,7 @@
     android:background="#FFFFFFFF" >
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/button_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,14 +16,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="Mirror" />
+            android:text="@string/mirror" />
 
         <Button
             android:id="@+id/light"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="light" />
+            android:text="@string/light" />
     </RelativeLayout>
 
     <RelativeLayout

@@ -33,7 +33,6 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -83,11 +82,11 @@ public class MirrorActivity extends Activity implements OnClickListener
      * Buttons
      */
     
-    private Button mMirrorBt;
+//    private Button mMirrorBt;
+//    
+//    private Button mLightBt;
     
-    private Button mLightBt;
-    
-    private boolean mIsMirrorOn = false;
+    private boolean mIsMirrorOn = true;
     
     private boolean mIsLightOn = false;
     
@@ -107,7 +106,7 @@ public class MirrorActivity extends Activity implements OnClickListener
             if (mLightIntensity != event.values[0])
             {
                 mLightIntensity = event.values[0];
-                Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
+//                Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
                 if (mIsMirrorOn)
                 {
                     changePreviewProperty();
@@ -135,7 +134,7 @@ public class MirrorActivity extends Activity implements OnClickListener
         
         mHasLightSensors = getLightSensors();
         
-        initButtom();
+//        initButton();
     }
     
     @Override
@@ -309,18 +308,26 @@ public class MirrorActivity extends Activity implements OnClickListener
         // mPreviewParent.setBackgroundColor(Color.BLACK);
     }
     
-    private void initButtom()
-    {
-        mMirrorBt = (Button) findViewById(R.id.mirror);
-        mLightBt = (Button) findViewById(R.id.light);
-        
-        mMirrorBt.setOnClickListener(this);
-        mLightBt.setOnClickListener(this);
-        
-    }
+//    private void initButton()
+//    {
+//        mMirrorBt = (Button) findViewById(R.id.mirror);
+//        mLightBt = (Button) findViewById(R.id.light);
+//        
+//        mMirrorBt.setOnClickListener(this);
+//        mLightBt.setOnClickListener(this);
+//        
+//    }
     
     private void changePreviewProperty()
     {
+        Camera.Parameters param = null;
+        if(null != mCamera)
+        {
+            param = mCamera.getParameters();
+        }else
+        {
+            return;
+        }
         if (mLightIntensity < 100)
         {
             layoutParams.leftMargin = mDefaulLeft
@@ -329,6 +336,8 @@ public class MirrorActivity extends Activity implements OnClickListener
             layoutParams.topMargin = mDefaulTop
                     + (mDisPlayHeight - 2 * mDefaulTop) / 4;
             layoutParams.bottomMargin = layoutParams.topMargin;
+            
+            param.setExposureCompensation(param.getMaxExposureCompensation());
         }
         else if (mLightIntensity < 800)
         {
@@ -338,6 +347,8 @@ public class MirrorActivity extends Activity implements OnClickListener
             layoutParams.topMargin = mDefaulTop
                     + (mDisPlayHeight - 2 * mDefaulTop) / 8;
             layoutParams.bottomMargin = layoutParams.topMargin;
+            
+            param.setExposureCompensation(0);
         }
         else
         {
@@ -345,8 +356,10 @@ public class MirrorActivity extends Activity implements OnClickListener
             layoutParams.rightMargin = mDefaulLeft / 2;
             layoutParams.topMargin = mDefaulTop;
             layoutParams.bottomMargin = mDefaulTop;
+            
+            param.setExposureCompensation(-1);
         }
-        
+        mCamera.setParameters(param);
     }
     
 }

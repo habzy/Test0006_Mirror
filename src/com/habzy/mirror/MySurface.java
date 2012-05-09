@@ -105,13 +105,14 @@ public class MySurface extends SurfaceView
         public void surfaceChanged(SurfaceHolder holder, int format, int width,
                 int height)
         {
+//            Log.d(TAG, "surfaceChanged");
             mCamera.startPreview();
         }
         
         @Override
         public void surfaceDestroyed(SurfaceHolder holder)
         {
-            Log.d(TAG, "surfaceChanged");
+            Log.d(TAG, "surfaceDestroyed");
             mCamera.stopPreview();
             mCamera.release();
             mCamera = null;

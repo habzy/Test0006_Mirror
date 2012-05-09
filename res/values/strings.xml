@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mirror</string>
+    <string name="app_name">Hmirror Night</string>
+    <string name="mirror">mirror</string>
+    <string name="light">light</string>
 </resources>
