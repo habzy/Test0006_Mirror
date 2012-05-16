@@ -110,8 +110,8 @@ public class MirrorActivity extends Activity implements OnClickListener
                 if (mIsMirrorOn)
                 {
                     changePreviewProperty();
-                    mPreviewParent.updateViewLayout(mPreviewLayout,
-                            layoutParams);
+//                    mPreviewParent.updateViewLayout(mPreviewLayout,
+//                            layoutParams);
                 }
             }
         }
@@ -330,32 +330,32 @@ public class MirrorActivity extends Activity implements OnClickListener
         }
         if (mLightIntensity < 100)
         {
-            layoutParams.leftMargin = mDefaulLeft
-                    + (mDisPlayWidth - 2 * mDefaulLeft) / 4;
-            layoutParams.rightMargin = layoutParams.leftMargin / 2;
-            layoutParams.topMargin = mDefaulTop
-                    + (mDisPlayHeight - 2 * mDefaulTop) / 4;
-            layoutParams.bottomMargin = layoutParams.topMargin;
+//            layoutParams.leftMargin = mDefaulLeft
+//                    + (mDisPlayWidth - 2 * mDefaulLeft) / 8;
+//            layoutParams.rightMargin = layoutParams.leftMargin / 2;
+//            layoutParams.topMargin = mDefaulTop
+//                    + (mDisPlayHeight - 2 * mDefaulTop) / 8;
+//            layoutParams.bottomMargin = layoutParams.topMargin;
             
-            param.setExposureCompensation(param.getMaxExposureCompensation());
+            param.setExposureCompensation(param.getMaxExposureCompensation()/2);
         }
         else if (mLightIntensity < 800)
         {
-            layoutParams.leftMargin = mDefaulLeft
-                    + (mDisPlayWidth - 2 * mDefaulLeft) / 8;
-            layoutParams.rightMargin = layoutParams.leftMargin / 2;
-            layoutParams.topMargin = mDefaulTop
-                    + (mDisPlayHeight - 2 * mDefaulTop) / 8;
-            layoutParams.bottomMargin = layoutParams.topMargin;
+//            layoutParams.leftMargin = mDefaulLeft
+//                    + (mDisPlayWidth - 2 * mDefaulLeft) / 8;
+//            layoutParams.rightMargin = layoutParams.leftMargin / 2;
+//            layoutParams.topMargin = mDefaulTop
+//                    + (mDisPlayHeight - 2 * mDefaulTop) / 8;
+//            layoutParams.bottomMargin = layoutParams.topMargin;
             
             param.setExposureCompensation(0);
         }
         else
         {
-            layoutParams.leftMargin = mDefaulLeft;
-            layoutParams.rightMargin = mDefaulLeft / 2;
-            layoutParams.topMargin = mDefaulTop;
-            layoutParams.bottomMargin = mDefaulTop;
+//            layoutParams.leftMargin = mDefaulLeft;
+//            layoutParams.rightMargin = mDefaulLeft / 2;
+//            layoutParams.topMargin = mDefaulTop;
+//            layoutParams.bottomMargin = mDefaulTop;
             
             param.setExposureCompensation(-1);
         }
