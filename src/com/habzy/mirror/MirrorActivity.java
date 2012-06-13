@@ -82,9 +82,9 @@ public class MirrorActivity extends Activity implements OnClickListener
      * Buttons
      */
     
-//    private Button mMirrorBt;
-//    
-//    private Button mLightBt;
+    // private Button mMirrorBt;
+    //
+    // private Button mLightBt;
     
     private boolean mIsMirrorOn = true;
     
@@ -106,12 +106,12 @@ public class MirrorActivity extends Activity implements OnClickListener
             if (mLightIntensity != event.values[0])
             {
                 mLightIntensity = event.values[0];
-//                Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
+                // Log.d(TAG, "Now, the light intensity is:" + mLightIntensity);
                 if (mIsMirrorOn)
                 {
                     changePreviewProperty();
-//                    mPreviewParent.updateViewLayout(mPreviewLayout,
-//                            layoutParams);
+                    mPreviewParent.updateViewLayout(mPreviewLayout,
+                            layoutParams);
                 }
             }
         }
@@ -134,7 +134,7 @@ public class MirrorActivity extends Activity implements OnClickListener
         
         mHasLightSensors = getLightSensors();
         
-//        initButton();
+        // initButton();
     }
     
     @Override
@@ -297,10 +297,6 @@ public class MirrorActivity extends Activity implements OnClickListener
         
         layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT);
-        layoutParams.leftMargin = mDefaulLeft;
-        layoutParams.rightMargin = mDefaulLeft / 2;
-        layoutParams.topMargin = mDefaulTop;
-        layoutParams.bottomMargin = mDefaulTop;
         
         mPreviewParent.addView(mPreviewLayout, layoutParams);
         
@@ -308,54 +304,51 @@ public class MirrorActivity extends Activity implements OnClickListener
         // mPreviewParent.setBackgroundColor(Color.BLACK);
     }
     
-//    private void initButton()
-//    {
-//        mMirrorBt = (Button) findViewById(R.id.mirror);
-//        mLightBt = (Button) findViewById(R.id.light);
-//        
-//        mMirrorBt.setOnClickListener(this);
-//        mLightBt.setOnClickListener(this);
-//        
-//    }
+    // private void initButton()
+    // {
+    // mMirrorBt = (Button) findViewById(R.id.mirror);
+    // mLightBt = (Button) findViewById(R.id.light);
+    //
+    // mMirrorBt.setOnClickListener(this);
+    // mLightBt.setOnClickListener(this);
+    //
+    // }
     
     private void changePreviewProperty()
     {
         Camera.Parameters param = null;
-        if(null != mCamera)
+        if (null != mCamera)
         {
             param = mCamera.getParameters();
-        }else
+        }
+        else
         {
             return;
         }
         if (mLightIntensity < 100)
         {
-//            layoutParams.leftMargin = mDefaulLeft
-//                    + (mDisPlayWidth - 2 * mDefaulLeft) / 8;
-//            layoutParams.rightMargin = layoutParams.leftMargin / 2;
-//            layoutParams.topMargin = mDefaulTop
-//                    + (mDisPlayHeight - 2 * mDefaulTop) / 8;
-//            layoutParams.bottomMargin = layoutParams.topMargin;
+            layoutParams.leftMargin = mDefaulLeft;
+            layoutParams.rightMargin = mDefaulLeft / 2;
+            layoutParams.topMargin = mDefaulTop / 2;
+            layoutParams.bottomMargin = mDefaulTop / 2;
             
-            param.setExposureCompensation(param.getMaxExposureCompensation()/2);
+            param.setExposureCompensation(param.getMaxExposureCompensation() / 4);
         }
         else if (mLightIntensity < 800)
         {
-//            layoutParams.leftMargin = mDefaulLeft
-//                    + (mDisPlayWidth - 2 * mDefaulLeft) / 8;
-//            layoutParams.rightMargin = layoutParams.leftMargin / 2;
-//            layoutParams.topMargin = mDefaulTop
-//                    + (mDisPlayHeight - 2 * mDefaulTop) / 8;
-//            layoutParams.bottomMargin = layoutParams.topMargin;
+            layoutParams.leftMargin = 0;
+            layoutParams.rightMargin = 0;
+            layoutParams.topMargin = 0;
+            layoutParams.bottomMargin = 0;
             
             param.setExposureCompensation(0);
         }
         else
         {
-//            layoutParams.leftMargin = mDefaulLeft;
-//            layoutParams.rightMargin = mDefaulLeft / 2;
-//            layoutParams.topMargin = mDefaulTop;
-//            layoutParams.bottomMargin = mDefaulTop;
+            layoutParams.leftMargin = 0;
+            layoutParams.rightMargin = 0;
+            layoutParams.topMargin = 0;
+            layoutParams.bottomMargin = 0;
             
             param.setExposureCompensation(-1);
         }
